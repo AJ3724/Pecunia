@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, Alert, ScrollView } from 'react-native';
+import { 
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  KeyboardAvoidingView, Platform, Modal, Alert, ScrollView
+} from 'react-native';
 import Header from '../Constants/Header';
 import { FileStorage } from '../../assets/FileStorage';
 
@@ -10,7 +13,6 @@ const GetStartedScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
 
   useEffect(() => {
-    // Initialize file storage when component mounts
     FileStorage.initialize();
   }, []);
 
@@ -22,21 +24,18 @@ const GetStartedScreen = ({ navigation }) => {
 
     const fullPhone = countryCode + phoneNumber;
 
-    // Check if phone already exists
     const exists = await FileStorage.phoneExists(fullPhone);
     if (exists) {
       Alert.alert('Error', 'This phone number is already registered. Please login instead.');
       return;
     }
 
-    // Show OTP modal
     Alert.alert('Verification', 'Enter code: 0000');
     setModalVisible(true);
   };
 
   const handleChangeOtp = (text, index) => {
     if (text.length > 1) return;
-
     const newOtp = [...otp];
     newOtp[index] = text;
     setOtp(newOtp);
@@ -44,80 +43,81 @@ const GetStartedScreen = ({ navigation }) => {
 
   const handleVerify = () => {
     const code = otp.join("");
-
     if (code.length !== 4) {
       Alert.alert('Error', 'Please enter the 4-digit code.');
       return;
     }
 
-    // Always accept 0000
     if (code !== '0000') {
       Alert.alert('Error', 'Invalid verification code. Use 0000');
       return;
     }
 
-    // OTP verified, proceed to personal information
     setModalVisible(false);
-    setOtp(["", "", "", ""]); // Reset OTP
+    setOtp(["", "", "", ""]);
     const fullPhone = countryCode + phoneNumber;
     navigation.navigate("PersonalInformation", { phoneNumber: fullPhone });
   };
 
   return (
-    <View style={styles.container}>
-      <Header text="" />
-
-      <ScrollView 
-        style={styles.scrollView}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+    >
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.contentContainer}>
-          <Text style={styles.title}>Get Started</Text>
+        <View style={styles.container}>
+          <Header text="" />
+          <View style={styles.contentContainer}>
+            <Text style={styles.title}>Get Started</Text>
 
-          <Text style={styles.description}>
-            Enter your mobile number. We will send you a confirmation code there.
-          </Text>
-
-          <View style={styles.inputSection}>
-            <Text style={styles.label}>Mobile Number</Text>
-
-            <View style={styles.phoneRow}>
-              <TextInput
-                style={styles.codeInput}
-                value={countryCode}
-                onChangeText={setCountryCode}
-                keyboardType="phone-pad"
-                maxLength={5}
-                placeholderTextColor="#999"
-              />
-              <TextInput
-                style={styles.numberInput}
-                placeholder="Enter your number"
-                placeholderTextColor="#999"
-                keyboardType="phone-pad"
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-              />
-            </View>
-          </View>
-
-          <Text style={styles.terms}>
-            By entering your phone number, you agree to our terms and conditions.
-          </Text>
-
-          <TouchableOpacity onPress={handleSignup} style={styles.button}>
-            <Text style={styles.buttonText}>Sign Up</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.loginLink}
-            onPress={() => navigation.navigate('Login')}
-          >
-            <Text style={styles.loginLinkText}>
-              Already have an account? <Text style={styles.loginLinkBold}>Log In</Text>
+            <Text style={styles.description}>
+              Enter your mobile number. We will send you a confirmation code there.
             </Text>
-          </TouchableOpacity>
+
+            <View style={styles.inputSection}>
+              <Text style={styles.label}>Mobile Number</Text>
+              <View style={styles.phoneRow}>
+                <TextInput
+                  style={styles.codeInput}
+                  value={countryCode}
+                  onChangeText={setCountryCode}
+                  keyboardType="phone-pad"
+                  maxLength={5}
+                  placeholderTextColor="#999"
+                />
+                <TextInput
+                  style={styles.numberInput}
+                  placeholder="Enter your number"
+                  placeholderTextColor="#999"
+                  keyboardType="phone-pad"
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                />
+              </View>
+            </View>
+
+            <Text style={styles.terms}>
+              By entering your phone number, you agree to our terms and conditions.
+            </Text>
+
+            <TouchableOpacity onPress={handleSignup} style={styles.button}>
+              <Text style={styles.buttonText}>Sign Up</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.loginLink}
+              onPress={() => navigation.navigate('Login')}
+            >
+              <Text style={styles.loginLinkText}>
+                Already have an account? <Text style={styles.loginLinkBold}>Log In</Text>
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
 
@@ -125,7 +125,6 @@ const GetStartedScreen = ({ navigation }) => {
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-
             <Text style={styles.modalTitle}>Enter Confirmation Code</Text>
             <Text style={styles.modalText}>Enter the code: 0000</Text>
 
@@ -149,11 +148,10 @@ const GetStartedScreen = ({ navigation }) => {
             <TouchableOpacity onPress={() => setModalVisible(false)}>
               <Text style={styles.closeText}>Cancel</Text>
             </TouchableOpacity>
-
           </View>
         </View>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -161,9 +159,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#d9daddff',
-  },
-  scrollView: {
-    flex: 1,
   },
   scrollContent: {
     paddingBottom: 40,
@@ -186,7 +181,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   inputSection: {
-    marginBottom: 25,
+    marginBottom: 0,
   },
   label: {
     fontSize: 18,

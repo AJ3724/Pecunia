@@ -1,12 +1,15 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { 
+  View, Text, TextInput, TouchableOpacity, StyleSheet, 
+  ScrollView, Alert, KeyboardAvoidingView, Platform 
+} from 'react-native';
 import Header from '../Constants/Header';
 import BottomNav from '../Constants/BottomNav';
 
 const Transfer = ({ navigation }) => {
-  const [amount, setAmount] = React.useState('');
-  const [number, setNumber] = React.useState('');
-  const [note, setNote] = React.useState(''); // Add state for the note
+  const [amount, setAmount] = useState('');
+  const [number, setNumber] = useState('');
+  const [note, setNote] = useState('');
 
   const handleContinue = () => {
     if (!amount.trim() || isNaN(amount) || parseFloat(amount) <= 0) {
@@ -19,104 +22,112 @@ const Transfer = ({ navigation }) => {
       return;
     }
 
-    // Proceeding with transfer
     Alert.alert("Success", "Proceeding to transfer...");
 
-    // Clear all inputs
     setAmount('');
     setNumber('');
     setNote('');
   };
 
   return (
-    <View style={styles.container}>
-      <Header text="" />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.container}>
+          <Header text="" />
 
-      <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
-        <View style={styles.content}>
+          <View style={styles.content}>
 
-          {/* Phone Number */}
-          <View style={styles.inputSection}>
-            <Text style={styles.label}>Receiver's Phone Number</Text>
-            <TextInput 
-              style={styles.input}
-              onChangeText={setNumber}
-              keyboardType="phone-pad"
-              placeholder="Enter phone number"
-              value={number}
-            />
+            {/* Receiver's Phone Number */}
+            <View style={styles.inputSection}>
+              <Text style={styles.label}>Receiver's Phone Number</Text>
+              <TextInput 
+                style={styles.input}
+                onChangeText={setNumber}
+                keyboardType="phone-pad"
+                placeholder="Enter phone number"
+                value={number}
+              />
+            </View>
+
+            {/* Amount */}
+            <View style={styles.inputSection}>
+              <Text style={styles.label}>Amount to Transfer (USD)</Text>
+              <TextInput 
+                style={styles.input}
+                onChangeText={setAmount} 
+                keyboardType="numeric"
+                placeholder="0.00"
+                value={amount}
+              />
+            </View>
+
+            {/* Note */}
+            <View style={styles.inputSection}>
+              <Text style={styles.label}>Leave a Note (optional)</Text>
+              <TextInput 
+                style={[styles.input, styles.noteInput]}
+                multiline
+                numberOfLines={3}
+                placeholder="Add a message..."
+                textAlignVertical="top"
+                value={note}
+                onChangeText={setNote}
+              />
+            </View>
+
+            {/* Warning */}
+            <Text style={styles.warning}>
+              Be careful: if you fall victim to a scam you may not get your money back.
+              {"\n"}Cancellation is not available for transfers.
+            </Text>
+
+            {/* Continue Button */}
+            <TouchableOpacity onPress={handleContinue} style={styles.button}>
+              <Text style={styles.buttonText}>Continue</Text>
+            </TouchableOpacity>
+
           </View>
-
-          {/* Amount */}
-          <View style={styles.inputSection}>
-            <Text style={styles.label}>Amount to Transfer (USD)</Text>
-            <TextInput 
-              style={styles.input}
-              onChangeText={setAmount} 
-              keyboardType="numeric"
-              placeholder="0.00"
-              value={amount}
-            />
-          </View>
-
-          {/* Note */}
-          <View style={styles.inputSection}>
-            <Text style={styles.label}>Leave a Note (optional)</Text>
-            <TextInput 
-              style={[styles.input, styles.noteInput]}
-              multiline
-              numberOfLines={3}
-              placeholder="Add a message..."
-              textAlignVertical="top"
-              value={note}
-              onChangeText={setNote}
-            />
-          </View>
-
-          {/* Warning */}
-          <Text style={styles.warning}>
-             Be careful: if you fall victim to a scam you may not get your money back.
-            {"\n"}Cancellation is not available for transfers.
-          </Text>
-
-          {/* Button */}
-          <TouchableOpacity onPress={handleContinue} style={styles.button}>
-            <Text style={styles.buttonText}>Continue</Text>
-          </TouchableOpacity>
-
         </View>
       </ScrollView>
 
       <BottomNav active="send" navigation={navigation} />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
-
-export default Transfer;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#d9daddff',
   },
-  scrollContent: {
-    flex: 1,
-  },
+
   scrollContentContainer: {
-    paddingBottom: 100, // Space for BottomNav
+    paddingBottom: 50, // Space for BottomNav
   },
+
   content: {
     padding: 20,
   },
+
   inputSection: {
     marginBottom: 20,
   },
+
   label: {
     fontSize: 18,
     color: '#0A1F44',
     fontWeight: '600',
     marginBottom: 8,
   },
+
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -126,10 +137,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     fontSize: 18,
   },
+
   noteInput: {
     height: 100,
     textAlignVertical: 'top',
   },
+
   warning: {
     color: '#fd0000ac',
     fontSize: 14,
@@ -138,6 +151,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontWeight: '600',
   },
+
   button: {
     backgroundColor: '#0A1F44',
     paddingVertical: 16,
@@ -145,9 +159,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
+
   buttonText: {
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
   },
 });
+
+export default Transfer;

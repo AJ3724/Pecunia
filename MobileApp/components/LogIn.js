@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { 
+  View, Text, TextInput, TouchableOpacity, StyleSheet, 
+  ScrollView, Alert, ActivityIndicator, KeyboardAvoidingView, Platform 
+} from 'react-native';
 import Header from './Constants/Header';
 import { FileStorage } from '../assets/FileStorage';
 
@@ -40,82 +43,85 @@ const Login = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Header text="" />
-
-      <ScrollView 
-        style={styles.scrollView}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+    >
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.content}>
+        <View style={styles.container}>
+          <Header text="" />
+          <View style={styles.content}>
+            <Text style={styles.title}>Welcome Back!</Text>
+            <Text style={styles.subtitle}>Login to your account</Text>
 
-          <Text style={styles.title}>Welcome Back!</Text>
-          <Text style={styles.subtitle}>Login to your account</Text>
+            {/* Phone Number Input */}
+            <View style={styles.inputSection}>
+              <Text style={styles.label}>Mobile Number</Text>
+              <View style={styles.phoneRow}>
+                <TextInput
+                  style={styles.codeInput}
+                  value={countryCode}
+                  onChangeText={setCountryCode}
+                  keyboardType="phone-pad"
+                  maxLength={5}
+                  placeholderTextColor="#999"
+                />
+                <TextInput
+                  style={styles.numberInput}
+                  placeholder="Enter your number"
+                  placeholderTextColor="#999"
+                  keyboardType="phone-pad"
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                />
+              </View>
+            </View>
 
-          {/* Phone Number Input */}
-          <View style={styles.inputSection}>
-            <Text style={styles.label}>Mobile Number</Text>
-            <View style={styles.phoneRow}>
+            {/* Password Input */}
+            <View style={styles.inputSection}>
+              <Text style={styles.label}>Password</Text>
               <TextInput
-                style={styles.codeInput}
-                value={countryCode}
-                onChangeText={setCountryCode}
-                keyboardType="phone-pad"
-                maxLength={5}
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Enter your password"
                 placeholderTextColor="#999"
-              />
-              <TextInput
-                style={styles.numberInput}
-                placeholder="Enter your number"
-                placeholderTextColor="#999"
-                keyboardType="phone-pad"
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
+                secureTextEntry
+                autoCapitalize="none"
               />
             </View>
+
+            {/* Login Button */}
+            <TouchableOpacity 
+              onPress={handleLogin} 
+              style={styles.button}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Login</Text>
+              )}
+            </TouchableOpacity>
+
+            {/* Sign Up Link */}
+            <TouchableOpacity 
+              style={styles.signupLink}
+              onPress={() => navigation.navigate('GetStarted')}
+            >
+              <Text style={styles.signupLinkText}>
+                Don't have an account? <Text style={styles.signupLinkBold}>Sign Up</Text>
+              </Text>
+            </TouchableOpacity>
           </View>
-
-          {/* Password Input */}
-          <View style={styles.inputSection}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Enter your password"
-              placeholderTextColor="#999"
-              secureTextEntry
-              autoCapitalize="none"
-            />
-          </View>
-
-          {/* Login Button */}
-          <TouchableOpacity 
-            onPress={handleLogin} 
-            style={styles.button}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Login</Text>
-            )}
-          </TouchableOpacity>
-
-          {/* Sign Up Link */}
-          <TouchableOpacity 
-            style={styles.signupLink}
-            onPress={() => navigation.navigate('GetStarted')}
-          >
-            <Text style={styles.signupLinkText}>
-              Don't have an account? <Text style={styles.signupLinkBold}>Sign Up</Text>
-            </Text>
-          </TouchableOpacity>
-
         </View>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -125,12 +131,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#d9daddff',
   },
 
-  scrollView: {
-    flex: 1,
-  },
-
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 0,
   },
 
   content: {

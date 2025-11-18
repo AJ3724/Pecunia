@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { 
+  View, Text, TextInput, TouchableOpacity, StyleSheet, 
+  ScrollView, Alert, ActivityIndicator, KeyboardAvoidingView, Platform 
+} from 'react-native';
 import Header from '../Constants/Header';
 import { FileStorage } from '../../assets/FileStorage';
-
 
 const CreateAccount = ({ navigation, route }) => {
   const { phoneNumber, email: userEmail, gender, country, address, age } = route.params;
@@ -13,48 +15,29 @@ const CreateAccount = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
 
   const handleCreateAccount = async () => {
-    // Validation
     if (!email.trim()) {
       Alert.alert('Error', 'Please enter your email');
       return;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
 
-    // if (!password.trim()) {
-    //   Alert.alert('Error', 'Please enter a password');
-    //   return;
-    // }
-
-    // if (password.length < 6) {
-    //   Alert.alert('Error', 'Password must be at least 6 characters');
-    //   return;
-    // }
-
-    // if (password !== confirmPassword) {
-    //   Alert.alert('Error', 'Passwords do not match');
-    //   return;
-    // }
-
     setLoading(true);
 
-    // Create user object
     const userData = {
       phoneNumber,
       email,
-      password, // In production, this should be hashed!
+      password,
       gender,
       country,
       address,
       age
     };
 
-    // Save to Logs.json
     const result = await FileStorage.addUser(userData);
 
     setLoading(false);
@@ -76,92 +59,97 @@ const CreateAccount = ({ navigation, route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Header text="" />
-
-      <ScrollView 
-        style={styles.scrollContent} 
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+    >
+      <ScrollView
         contentContainerStyle={styles.scrollContentContainer}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.content}>
+        <View style={styles.container}>
+          <Header text="" />
+          <View style={styles.content}>
 
-          {/* Email Input */}
-          <View style={styles.inputSection}>
-            <Text style={styles.label}>Email Address</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="your.email@example.com"
-              placeholderTextColor="#999"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!userEmail}
-            />
-          </View>
+            {/* Email Input */}
+            <View style={styles.inputSection}>
+              <Text style={styles.label}>Email Address</Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="your.email@example.com"
+                placeholderTextColor="#999"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!userEmail}
+              />
+            </View>
 
-          {/* Password Input */}
-          <View style={styles.inputSection}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Enter your password"
-              placeholderTextColor="#999"
-              secureTextEntry
-              autoCapitalize="none"
-            />
-          </View>
+            {/* Password Input */}
+            <View style={styles.inputSection}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Enter your password"
+                placeholderTextColor="#999"
+                secureTextEntry
+                autoCapitalize="none"
+              />
+            </View>
 
-          {/* Confirm Password Input */}
-          <View style={styles.inputSection}>
-            <Text style={styles.label}>Confirm Password</Text>
-            <TextInput
-              style={styles.input}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Re-enter your password"
-              placeholderTextColor="#999"
-              secureTextEntry
-              autoCapitalize="none"
-            />
-          </View>
+            {/* Confirm Password Input */}
+            <View style={styles.inputSection}>
+              <Text style={styles.label}>Confirm Password</Text>
+              <TextInput
+                style={styles.input}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                placeholder="Re-enter your password"
+                placeholderTextColor="#999"
+                secureTextEntry
+                autoCapitalize="none"
+              />
+            </View>
 
-          {/* Info Message */}
-          <Text style={styles.info}>
-             Your password must be at least 6 characters long.
-            {"\n"}Make sure both passwords match to create your account.
-          </Text>
-
-          {/* Create Account Button */}
-          <TouchableOpacity 
-            onPress={handleCreateAccount} 
-            style={styles.button}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Create Account</Text>
-            )}
-          </TouchableOpacity>
-
-          {/* Already have account */}
-          <TouchableOpacity 
-            style={styles.loginLink}
-            onPress={() => navigation.navigate('Login')}
-          >
-            <Text style={styles.loginLinkText}>
-              Already have an account? <Text style={styles.loginLinkBold}>Log In</Text>
+            {/* Info Message */}
+            <Text style={styles.info}>
+              Your password must be at least 6 characters long.
+              {"\n"}Make sure both passwords match to create your account.
             </Text>
-          </TouchableOpacity>
 
+            {/* Create Account Button */}
+            <TouchableOpacity 
+              onPress={handleCreateAccount} 
+              style={styles.button}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Create Account</Text>
+              )}
+            </TouchableOpacity>
+
+            {/* Already have account */}
+            <TouchableOpacity 
+              style={styles.loginLink}
+              onPress={() => navigation.navigate('Login')}
+            >
+              <Text style={styles.loginLinkText}>
+                Already have an account? <Text style={styles.loginLinkBold}>Log In</Text>
+              </Text>
+            </TouchableOpacity>
+
+          </View>
         </View>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -169,10 +157,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#d9daddff',
-  },
-
-  scrollContent: {
-    flex: 1,
   },
 
   scrollContentContainer: {
